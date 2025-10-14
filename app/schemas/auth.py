@@ -1,4 +1,5 @@
 import re
+from datetime import datetime
 
 from pydantic import (
     BaseModel,
@@ -23,4 +24,11 @@ class UserLogin(BaseModel):
 
 
 class UserVerify(BaseModel):
+    uid: str
     sig: str
+
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
+    expires_at: datetime
