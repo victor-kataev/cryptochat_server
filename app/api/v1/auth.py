@@ -1,4 +1,4 @@
-import os, base64
+import os, base64, secrets
 from datetime import datetime
 
 from fastapi import APIRouter, status, HTTPException
@@ -17,16 +17,25 @@ db = {}
 nonce_table = {}
 
 
-def generate_uid():
-    uid = "4566"
-    return uid
+CROCKFORD_ALPHABET = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+
+
+def base32crockford(num: int, length: int = 8) -> str:
+    chars = []
+    for _ in range(length):
+        chars.append(CROCKFORD_ALPHABET[num % 32])
+        num //= 32
+    return "".join(reversed(chars))
+
+def generate_uid() -> str:
+    num = int.from_bytes(secrets.token_bytes(5), "big")
+    return base32crockford(num)
 
 
 @router.post("/register", status_code=status.HTTP_201_CREATED)
-async def register(user: UserCreate):
+async def register_user(user: UserCreate):
     uid = generate_uid()
     db[uid] = {"pk": user.pk, "created_at": datetime.now()}
-    print(db)
     return {"uid": uid}
  
 
@@ -34,12 +43,11 @@ async def register(user: UserCreate):
 async def challenge(uid: str):
     random_nonce = os.urandom(32)
     nonce_table[uid] = random_nonce
-    print(nonce_table)
     return {"nonce": base64.b64encode(random_nonce).decode('utf-8')}
 
 
 @router.post("/verify", status_code=status.HTTP_200_OK, response_model=Token)
-async def verify_challenge(user: UserVerify):
+async def verify_user(user: UserVerify):
     sig_bytes = base64.b64decode(user.sig)
     user_pk_bytes = base64.b64decode(db[user.uid]['pk'])
     user_pk = Ed25519PublicKey.from_public_bytes(user_pk_bytes)
@@ -53,6 +61,4 @@ async def verify_challenge(user: UserVerify):
         )
     
     del nonce_table[user.uid]
-    print(nonce_table)
-    token = create_access_token(user.uid)
-    return token
+    return create_access_token(user.uid)
