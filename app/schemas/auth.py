@@ -19,9 +19,8 @@ class UserCreate(BaseModel):
     pk: str
     
 
-class UserLogin(BaseModel):
+class UserFetchUid(BaseModel):
     pk: str
-
 
 class UserVerify(BaseModel):
     uid: str

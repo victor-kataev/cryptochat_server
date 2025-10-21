@@ -6,7 +6,7 @@ from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PublicKey
 from cryptography.exceptions import InvalidSignature
 
 
-from app.schemas.auth import UserCreate, UserVerify, Token
+from app.schemas.auth import UserCreate, UserVerify, UserFetchUid, Token
 from app.utils.auth import create_access_token
 
 
@@ -14,6 +14,7 @@ router = APIRouter(prefix="/auth", tags=["auth"])
 
 
 db = {}
+pk_to_uid = {}
 nonce_table = {}
 
 
@@ -36,6 +37,7 @@ def generate_uid() -> str:
 async def register_user(user: UserCreate):
     uid = generate_uid()
     db[uid] = {"pk": user.pk, "created_at": datetime.now()}
+    pk_to_uid[user.pk] = uid
     return {"uid": uid}
  
 
@@ -62,3 +64,15 @@ async def verify_user(user: UserVerify):
     
     del nonce_table[user.uid]
     return create_access_token(user.uid)
+
+
+@router.post("/fetch_uid", status_code=status.HTTP_200_OK)
+async def fetch_uid(user: UserFetchUid):
+    print(user.pk)
+    print(pk_to_uid)
+    if not user.pk in pk_to_uid:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Fetchi UID failed, provided pk was not found."
+        )
+    return {"uid": pk_to_uid[user.pk]}
