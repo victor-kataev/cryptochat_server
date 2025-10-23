@@ -1,3 +1,4 @@
+import secrets
 from datetime import (
     datetime,
     timedelta
@@ -9,6 +10,20 @@ from jose import jwt
 from app.core.config import settings
 from app.schemas.auth import Token
 
+
+CROCKFORD_ALPHABET = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+
+def base32crockford(num: int, length: int = 8) -> str:
+    chars = []
+    for _ in range(length):
+        chars.append(CROCKFORD_ALPHABET[num % 32])
+        num //= 32
+    return "".join(reversed(chars))
+
+
+def generate_uid() -> str:
+    num = int.from_bytes(secrets.token_bytes(5), "big")
+    return base32crockford(num)
 
 
 def create_access_token(thread_id: str, expires_delta: Optional[timedelta] = None) -> Token:
