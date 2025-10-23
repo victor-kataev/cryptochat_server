@@ -9,6 +9,8 @@ wheels/
 # Virtual environments
 .venv
 
+.pytest_cache
+
 .env
 
 #vs code

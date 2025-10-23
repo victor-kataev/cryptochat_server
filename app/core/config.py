@@ -44,6 +44,10 @@ class Settings:
         self.POSTGRES_PASSWORD = os.getenv("POSTGRES_PASSWORD", "postgres")
         self.POSTGRES_POOL_SIZE = int(os.getenv("POSTGRES_POOL_SIZE", "20"))
         self.POSTGRES_MAX_OVERFLOW = int(os.getenv("POSTGRES_MAX_OVERFLOW", "10"))
+        self.POSTGRES_URL = (
+            f"postgresql://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}"
+            f"@{self.POSTGRES_HOST}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"
+        )
 
         # logs
         self.LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")

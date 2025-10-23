@@ -15,6 +15,12 @@ from app.core.logging import logger
 
 from app.models.user import User
 
+# duplicate of settings.POSTGRES_URL
+CONNECTION_URL = (
+    f"postgresql://{settings.POSTGRES_USER}:{settings.POSTGRES_PASSWORD}"
+    f"@{settings.POSTGRES_HOST}:{settings.POSTGRES_PORT}/{settings.POSTGRES_DB}"
+)
+
 
 class DatabaseSevice:
     """
@@ -25,14 +31,9 @@ class DatabaseSevice:
         pool_size = settings.POSTGRES_POOL_SIZE
         max_overflow = settings.POSTGRES_MAX_OVERFLOW
 
-        connection_url = (
-            f"postgresql://{settings.POSTGRES_USER}:{settings.POSTGRES_PASSWORD}"
-            f"@{settings.POSTGRES_HOST}:{settings.POSTGRES_PORT}/{settings.POSTGRES_DB}"
-        )
-
         try:
             self.engine = create_engine(
-                connection_url,
+                CONNECTION_URL,
                 pool_pre_ping=True,
                 poolclass=QueuePool,
                 pool_size=pool_size,
@@ -42,6 +43,7 @@ class DatabaseSevice:
             )
 
             # create tables only if they don't exist
+            # potential conflic with alembic's env.py
             SQLModel.metadata.create_all(self.engine)
 
             logger.info(
