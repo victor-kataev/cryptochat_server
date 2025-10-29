@@ -38,7 +38,7 @@ def create_access_token(thread_id: str, expires_delta: Optional[timedelta] = Non
         "iat": datetime.now().isoformat()
     }
 
-    encoded_jwt = jwt.encode(to_encrypt, settings.JWT_SECRETE_KEY, algorithm=settings.JWT_ALGORITHM)
+    encoded_jwt = jwt.encode(to_encrypt, settings.JWT_SECRET_KEY, algorithm=settings.JWT_ALGORITHM)
     return Token(access_token=encoded_jwt, expires_at=expire)
 
     

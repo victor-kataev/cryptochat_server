@@ -10,6 +10,7 @@ dependencies = [
     "fastapi[standard]>=0.118.0",
     "psycopg2-binary>=2.9.11",
     "pytest>=8.4.2",
+    "python-dotenv>=1.1.1",
     "python-jose[cryptography]>=3.5.0",
     "sqlmodel>=0.0.27",
     "structlog>=25.4.0",

@@ -1,11 +1,13 @@
 from datetime import datetime, UTC
 
-from sqlmodel import SQLModel, Field
+from sqlalchemy import Column, Integer, String, DateTime
 
+from app.services.database import Base
 
+class User(Base):
+    __tablename__ = 'users'
 
-class User(SQLModel, table=True):
-    id: int = Field(primary_key=True, default=None)
-    uid: str = Field(unique=True, index=True)
-    pk: str = Field(unique=True)
-    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+    id = Column(Integer, primary_key=True, default=None)
+    uid = Column(String(30), unique=True, index=True)
+    pk = Column(String(200), unique=True)
+    created_at = Column(DateTime, default=datetime.now(UTC))
