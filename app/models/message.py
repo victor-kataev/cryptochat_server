@@ -15,5 +15,5 @@ class Message(Base):
     conversation_id = Column(Integer, ForeignKey("conversations.id"))
     created_at = Column(DateTime, default=datetime.now(UTC))
     
-    sender = relationship('User', back_populates='users')
-    conversation = relationship('Conversation', back_populates='conversations')
+    sender = relationship('User', back_populates='messages')
+    conversation = relationship('Conversation', back_populates='messages')

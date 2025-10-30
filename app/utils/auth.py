@@ -32,15 +32,16 @@ def generate_uid() -> str:
 
 
 def create_access_token(thread_id: str, expires_delta: Optional[timedelta] = None) -> Token:
+    now = datetime.now()
     if expires_delta:
-        expire = datetime.now() + expires_delta
+        expire = now + expires_delta
     else:
-        expire = datetime.now() + timedelta(minutes=settings.JWT_TOKEN_EXPIRE_MINUTES)
+        expire = now + timedelta(minutes=settings.JWT_TOKEN_EXPIRE_MINUTES)
 
     to_encrypt = {
         "sub": thread_id,
-        "exp": expire,
-        "iat": datetime.now().isoformat()
+        "exp": int(expire.timestamp()),
+        "iat": int(now.timestamp())
     }
 
     encoded_jwt = jwt.encode(to_encrypt, settings.JWT_SECRET_KEY, algorithm=settings.JWT_ALGORITHM)
@@ -52,7 +53,7 @@ def verify_token(token: str) -> Optional[str]:
         logger.error("empty token")
         raise ValueError("Token must be a non-empty string")
     
-    if not re.match(r"^[A-Za-z0-9_]+\.[A-Za-z0-9_]+\.[A-Za-z0-9_]+$", token):
+    if not re.match(r"^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+$", token):
         logger.error("invalid token format")
         raise ValueError("Token format is invalid - expected JWT format")
     

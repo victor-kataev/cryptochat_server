@@ -27,6 +27,10 @@ class ConnectionManager:
 
     def subscribe(self, ws: WebSocket, conv_id: int):
         self.active_connections.setdefault(conv_id, []).append(ws)
+
+    async def broadcast(self, msg: str, conv_id: int):
+        for conn in self.active_connections[conv_id]:
+            await conn.send_text(f"server: {msg}")
         
 
 conn_manager = ConnectionManager()
@@ -41,12 +45,15 @@ async def ws_endpoint(websocket: WebSocket, user: User = Depends(get_current_use
             raw = await websocket.receive_text()
             data = json.loads(raw)
             action = data["action"]
+            body = data["body"]
+            cid = data["conversation_id"]
+            await conn_manager.broadcast(body, cid)
 
-            if action == "subscribe":
-                ...
-            elif action == "send_message":
-                ...
-            elif action == "read_receipt":
-                ...
+            # if action == "subscribe":
+            #     ...
+            # elif action == "send_message":
+            #     ...
+            # elif action == "read_receipt":
+            #     ...
     except WebSocketDisconnect:
         logger.info(f"Websocket: user {user.uid} disconnected.")

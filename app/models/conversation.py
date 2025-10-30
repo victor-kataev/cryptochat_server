@@ -13,4 +13,4 @@ class Conversation(Base):
     name = Column(String(200), nullable=True)
     created_at = Column(DateTime, default=datetime.now(UTC))
 
-    messages = relationship('Message', back_populates='messages')
+    messages = relationship('Message', back_populates='conversation')
