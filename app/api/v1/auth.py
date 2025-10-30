@@ -2,13 +2,15 @@ import os, base64, secrets
 from datetime import datetime
 
 from fastapi import APIRouter, status, HTTPException, Depends
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PublicKey
 from cryptography.exceptions import InvalidSignature
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
 
 from app.schemas.auth import UserCreate, UserVerify, UserFetchUid, Token
-from app.utils.auth import create_access_token, generate_uid
+from app.utils.auth import create_access_token, generate_uid, verify_token
+from app.utils.sanitization import sanitize_string
 from app.services.database import get_db
 from app.crud import user as user_crud
 from app.core.logging import logger
@@ -17,8 +19,39 @@ from app.core.logging import logger
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 
+security = HTTPBearer()
 nonce_table = {} # redis?
 
+
+async def get_current_user(
+        credentials: HTTPAuthorizationCredentials = Depends(security),
+        db: Session = Depends(get_db)
+):
+    try:
+        token = sanitize_string(credentials.credentials)
+        uid = verify_token(token)
+        if not uid:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid authentication credentials",
+                headers={"WWW-Authenticate": "Bearer"}
+            )
+        
+        user = await user_crud.get_user(db, uid)
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="User not found",
+                headers={"WWW-Authenticate": "Bearer"}
+            )
+        return user
+    except ValueError as ve:
+        logger.error("token validation failed", error=str(ve))
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail="Invalid token format",
+            headers={"WWW-Authenticate": "Bearer"}
+        )
 
 
 @router.post("/register", status_code=status.HTTP_201_CREATED)
