@@ -14,3 +14,4 @@ class Conversation(Base):
     created_at = Column(DateTime, default=datetime.now(UTC))
 
     messages = relationship('Message', back_populates='conversation')
+    members = relationship('ConversationMember', back_populates='conversation')

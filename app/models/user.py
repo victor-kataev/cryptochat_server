@@ -15,3 +15,4 @@ class User(Base):
     created_at = Column(DateTime, default=datetime.now(UTC))
 
     messages = relationship('Message', back_populates='sender')
+    conversation_members = relationship('ConversationMember', back_populates='user')
