@@ -86,7 +86,7 @@ async def ws_endpoint(
 
 @router.get("/{id}/messages", response_model=MessagesListResponse)
 async def get_conversation_messages(
-        id: int, limit: int = 10, offset: int = 0, 
+        id: int, limit: int = 100, offset: int = 0, 
         db: Session = Depends(get_db), 
         user: User = Depends(get_current_user)
     ):
