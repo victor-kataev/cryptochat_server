@@ -27,6 +27,7 @@ async def get_current_user(
         credentials: HTTPAuthorizationCredentials = Depends(security),
         db: Session = Depends(get_db)
 ):
+    logger.info("get_current_user")
     try:
         token = sanitize_string(credentials.credentials)
         uid = verify_token(token)
@@ -36,7 +37,7 @@ async def get_current_user(
                 detail="Invalid authentication credentials",
                 headers={"WWW-Authenticate": "Bearer"}
             )
-        
+
         user = await user_crud.get_user(db, uid)
         if not user:
             raise HTTPException(
@@ -51,6 +52,36 @@ async def get_current_user(
             status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
             detail="Invalid token format",
             headers={"WWW-Authenticate": "Bearer"}
+        )
+
+
+async def get_current_user_ws(
+    token: str,
+    db: Session = Depends(get_db)
+):
+    """WebSocket-compatible authentication dependency"""
+    logger.info("get_current_user_ws")
+    try:
+        token = sanitize_string(token)
+        uid = verify_token(token)
+        if not uid:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid authentication credentials"
+            )
+
+        user = await user_crud.get_user(db, uid)
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="User not found"
+            )
+        return user
+    except ValueError as ve:
+        logger.error("token validation failed", error=str(ve))
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail="Invalid token format"
         )
 
 
