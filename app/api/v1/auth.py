@@ -45,6 +45,7 @@ async def get_current_user(
                 detail="User not found",
                 headers={"WWW-Authenticate": "Bearer"}
             )
+        logger.info(f"User was successfully fetched. Uid: {user.uid}")
         return user
     except ValueError as ve:
         logger.error("token validation failed", error=str(ve))
