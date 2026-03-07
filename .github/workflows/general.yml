@@ -54,5 +54,5 @@ jobs:
           TEST_DATABASE_URL: postgresql://myuser:mypassword@localhost:5432/mydb
         run: |
           uv run alembic upgrade head
-          uv run pytest tests/integration/ -v --tb=short -q --junitxml=reports/junit.xml
+          uv run pytest tests/integration/ -v -q --tb=short --junitxml=reports/junit.xml
 
