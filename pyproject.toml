@@ -12,6 +12,7 @@ dependencies = [
     "pytest>=8.4.2",
     "python-dotenv>=1.1.1",
     "python-jose[cryptography]>=3.5.0",
+    "ruff>=0.15.5",
     "sqlmodel>=0.0.27",
     "structlog>=25.4.0",
 ]
