@@ -78,7 +78,7 @@ class TestChallenge:
         client.get("/api/v1/auth/challenge", params={"uid": uid})
 
         assert uid in auth_module.nonce_table
-        assert len(auth_module.nonce_table[uid]) == 31
+        assert len(auth_module.nonce_table[uid]) == 32
 
 
 class TestVerify:
