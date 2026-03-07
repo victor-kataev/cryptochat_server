@@ -7,8 +7,7 @@ on:
     branches: [master, main]
 
 jobs:
-  test:
-    name: Install dependencies and run unit tests
+  instal_and_run:
     runs-on: ubuntu-latest
 
     steps:
