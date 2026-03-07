@@ -57,4 +57,4 @@ jobs:
           uv run pytest tests/integration/ -v -q --tb=short --junitxml=reports/junit.xml
 
       - name: Build docker image
-        run: docker build -t chat-app:${{ github.sha }}
+        run: docker build -t chat-app:${{ github.sha }} .
