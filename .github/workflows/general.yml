@@ -1,5 +1,11 @@
 name: General
 
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+    branches: [master, main]
+
 jobs:
   test:
     name: Install dependencies and run unit tests
