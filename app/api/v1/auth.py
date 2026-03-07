@@ -14,6 +14,7 @@ from app.utils.sanitization import sanitize_string
 from app.services.database import get_db
 from app.crud import user as user_crud
 from app.core.logging import logger
+from app.models.user import User
 
 
 router = APIRouter(prefix="/auth", tags=["auth"])
@@ -26,7 +27,7 @@ nonce_table = {} # redis?
 async def get_current_user(
         credentials: HTTPAuthorizationCredentials = Depends(security),
         db: Session = Depends(get_db)
-):
+) -> User:
     logger.info("get_current_user")
     try:
         token = sanitize_string(credentials.credentials)
@@ -59,7 +60,7 @@ async def get_current_user(
 async def get_current_user_ws(
     token: str,
     db: Session = Depends(get_db)
-):
+) -> User:
     """WebSocket-compatible authentication dependency"""
     logger.info("get_current_user_ws")
     try:
