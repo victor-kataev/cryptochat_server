@@ -88,7 +88,7 @@ def seeded(db, client):
     member = ConversationMember(
         conversation_id=conv.id,
         user_id=user.id,
-        last_read_message_id=msg1.id,
+        # last_read_message_id=msg1.id,
     )
     db.add(member)
     db.commit()
