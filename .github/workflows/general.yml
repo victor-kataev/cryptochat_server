@@ -9,6 +9,9 @@ on:
 jobs:
   instal_and_run:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
 
     services:
       postgres:
