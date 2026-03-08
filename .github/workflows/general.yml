@@ -66,3 +66,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       
+      - name: Upload image
+        run: |
+          docker tag chat-app:${{ github.sha }} ghcr.io/${{ github.repository }}/chat-app:${{ github.sha }}
+          docker push ghcr.io/${{ github.repository }}/chat-app --all-tags
