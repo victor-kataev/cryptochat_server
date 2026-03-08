@@ -75,7 +75,7 @@ jobs:
         uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.STAGING_HOST }}
-          username: ${{ secretes.STAGING_USER }}
+          username: ${{ secrets.STAGING_USER }}
           key: ${{ secrets.STAGING_SSH_KEY }}
           script: |
             cd ~
