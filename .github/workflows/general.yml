@@ -7,11 +7,8 @@ on:
     branches: [master, main]
 
 jobs:
-  instal_and_run:
+  test:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
 
     services:
       postgres:
@@ -44,9 +41,6 @@ jobs:
       - name: Run unit tests (fail fast)
         run: uv run pytest tests/unit/ -x --tb=short -q
 
-      # - name: Lint & type check
-      #   run: uvx ruff check app/
-
       - name: Run integration tests
         env:
           POSTGRES_HOST: localhost
@@ -59,8 +53,17 @@ jobs:
           uv run alembic upgrade head
           uv run pytest tests/integration/ -v -q --tb=short --junitxml=reports/junit.xml
 
-      - name: Build docker image
-        run: docker build -t chat-app:${{ github.sha }} .
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
 
       - name: Login to GHCR
         uses: docker/login-action@v3
@@ -68,18 +71,23 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      
-      - name: Upload image
-        run: |
-          docker tag chat-app:${{ github.sha }} ghcr.io/${{ github.repository }}/chat-app:${{ github.sha }}
-          docker push ghcr.io/${{ github.repository }}/chat-app --all-tags
 
-      # - name: Doploy to staging
-      #   uses: appleboy/ssh-action@v1
-      #   with:
-      #     host: ${{ secrets.STAGING_HOST }}
-      #     username: ${{ secrets.STAGING_USER }}
-      #     key: ${{ secrets.STAGING_SSH_KEY }}
-      #     script: |
-      #       cd ~
-      #       mkdir 123githubactions
+      - name: Build and push image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository }}/chat-app:${{ github.sha }}
+            ghcr.io/${{ github.repository }}/chat-app:latest
+
+      - name: Deploy to staging
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.STAGING_HOST }}
+          username: ${{ secrets.STAGING_USER }}
+          key: ${{ secrets.STAGING_SSH_KEY }}
+          script: |
+            cd /home/ubuntu/app
+            docker compose pull
+            docker compose up -d
