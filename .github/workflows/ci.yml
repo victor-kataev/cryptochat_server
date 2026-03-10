@@ -27,7 +27,7 @@ jobs:
       - ci
     strategy:
       matrix:
-        platform: ${{ needs.ci.outputs.platforms }}
+        platform: ${{ fromJson(needs.ci.outputs.platforms) }}
 
     steps:
       - name: Test run
