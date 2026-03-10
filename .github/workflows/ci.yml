@@ -27,7 +27,7 @@ jobs:
       - ci
     strategy:
       matrix:
-        platform: ${{ ci.outputs.platforms }}
+        platform: ${{ needs.ci.outputs.platforms }}
 
     steps:
       - name: Test run
